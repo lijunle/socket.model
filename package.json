@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "mocha": "^1.21.4"
+    "mocha": "^1.21.4",
+    "socket.io-client": "^1.1.0"
   }
 }
