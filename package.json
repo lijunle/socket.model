@@ -2,7 +2,14 @@
   "name": "socket.model",
   "description": "Event driven model, communicate between server and client using socket.io.",
   "version": "0.0.1",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
   "dependencies": {
     "socket.io": "^1.1.0"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^1.21.4"
   }
 }
