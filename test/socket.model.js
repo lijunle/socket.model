@@ -26,148 +26,152 @@ function createClient() {
   return ioc('ws://127.0.0.1:' + port);
 }
 
-describe('model fields', function () {
+describe('server', function () {
 
-  it('should have a name', function () {
-    var Post = new SocketModel('post', sio);
-    expect(Post).to.have.property('name');
-  });
+  describe('model fields', function () {
 
-  it('should have collection as an empty array', function () {
-    var Post = new SocketModel('post', sio);
-    expect(Post).to.have.property('collection');
-    expect(Post.collection).to.be.an('array').and.to.have.length(0);
-  });
-
-  it('should have mode', function () {
-    var Post = new SocketModel('post', sio);
-    expect(Post).to.have.property('mode');
-    expect(Post.mode).to.be('server');
-  });
-
-});
-
-describe('connect', function () {
-
-  it('should trigger connect event when a client connects', function (done) {
-    var Post = new SocketModel('post', sio);
-    Post.on('connect', function () {
-      done();
+    it('should have a name', function () {
+      var Post = new SocketModel('post', sio);
+      expect(Post).to.have.property('name');
     });
 
-    createClient();
+    it('should have collection as an empty array', function () {
+      var Post = new SocketModel('post', sio);
+      expect(Post).to.have.property('collection');
+      expect(Post.collection).to.be.an('array').and.to.have.length(0);
+    });
+
+    it('should have mode', function () {
+      var Post = new SocketModel('post', sio);
+      expect(Post).to.have.property('mode');
+      expect(Post.mode).to.be('server');
+    });
+
   });
 
-  it('should trigger connect event on the connected client', function (done) {
-    var client = createClient();
-    client.on('connect', function () {
+  describe('connect', function () {
 
-      // new socket model after client is connected
+    it('should trigger connect event when a client connects', function (done) {
       var Post = new SocketModel('post', sio);
       Post.on('connect', function () {
         done();
       });
+
+      createClient();
     });
+
+    it('should trigger connect event on the connected client', function (done) {
+      var client = createClient();
+      client.on('connect', function () {
+
+        // new socket model after client is connected
+        var Post = new SocketModel('post', sio);
+        Post.on('connect', function () {
+          done();
+        });
+      });
+    });
+
+    it('should trigger client connect event when response', function (done) {
+      var expectedPosts = ['p1', 'p2', 'p3'];
+
+      var Post = new SocketModel('post', sio);
+      Post.on('connect', function (res) {
+        res(expectedPosts);
+      });
+
+      var client = createClient();
+      client.on('post:connect', function (actualPosts) {
+        expect(actualPosts).to.eql(expectedPosts);
+        done();
+      });
+    });
+
   });
 
-  it('should trigger client connect event when response', function (done) {
-    var expectedPosts = ['p1', 'p2', 'p3'];
+  describe('create', function () {
 
-    var Post = new SocketModel('post', sio);
-    Post.on('connect', function (res) {
-      res(expectedPosts);
+    it('should not trigger any event handler when client connect', function (done) {
+      var Post = new SocketModel('post', sio);
+      Post.on('create', function () {
+        expect().fail('');
+      });
+
+      var client = createClient();
+      client.on('connect', function () {
+        setTimeout(done, 500);
+      });
     });
 
-    var client = createClient();
-    client.on('post:connect', function (actualPosts) {
-      expect(actualPosts).to.eql(expectedPosts);
-      done();
-    });
-  });
-
-});
-
-describe('create', function () {
-
-  it('should not trigger any event handler when client connect', function (done) {
-    var Post = new SocketModel('post', sio);
-    Post.on('create', function () {
-      expect().fail('');
-    });
-
-    var client = createClient();
-    client.on('connect', function () {
-      setTimeout(done, 500);
-    });
-  });
-
-  it('should trigger create handler when client emit event', function (done) {
-    var Post = new SocketModel('post', sio);
-    Post.on('create', function () {
-      done();
-    });
-
-    var client = createClient();
-    client.emit('post:create');
-  });
-
-  it('should register event handler on connected sockets', function (done) {
-    var client = createClient();
-    client.on('connect', function () {
+    it('should trigger create handler when client emit event', function (done) {
       var Post = new SocketModel('post', sio);
       Post.on('create', function () {
         done();
       });
 
+      var client = createClient();
       client.emit('post:create');
     });
-  });
 
-  var expectedPost = {
-    id: 1234,
-    content: 'post content'
-  };
+    it('should register event handler on connected sockets', function (done) {
+      var client = createClient();
+      client.on('connect', function () {
+        var Post = new SocketModel('post', sio);
+        Post.on('create', function () {
+          done();
+        });
 
-  it('should communicate between server and client via callback', function (done) {
-    var Post = new SocketModel('post', sio);
-    Post.on('create', function (actualPost, res) {
-      expect(actualPost).to.eql(expectedPost);
-      res(true);
+        client.emit('post:create');
+      });
     });
 
-    var res = function (result) {
-      expect(result).to.be(true);
-      done();
+    var expectedPost = {
+      id: 1234,
+      content: 'post content'
     };
 
-    var client = createClient();
-    client.emit('post:create', expectedPost, res);
-  });
+    it('should communicate between server and client via callback', function (done) {
+      var Post = new SocketModel('post', sio);
+      Post.on('create', function (actualPost, res) {
+        expect(actualPost).to.eql(expectedPost);
+        res(true);
+      });
 
-  it('should broadcast every socket that something is created', function (done) {
-    var Post = new SocketModel('post', sio);
-    Post.on('create', function (actualPost) {
-      expect(actualPost).to.eql(expectedPost);
+      var res = function (result) {
+        expect(result).to.be(true);
+        done();
+      };
+
+      var client = createClient();
+      client.emit('post:create', expectedPost, res);
     });
 
-    var client1 = createClient();
-    var defer1 = Q.defer();
-    client1.on('post:create', function (actualPost) {
-      expect(actualPost).to.eql(expectedPost);
-      defer1.resolve();
+    it('should broadcast every socket that something is created', function (done) {
+      var Post = new SocketModel('post', sio);
+      Post.on('create', function (actualPost) {
+        expect(actualPost).to.eql(expectedPost);
+      });
+
+      var client1 = createClient();
+      var defer1 = Q.defer();
+      client1.on('post:create', function (actualPost) {
+        expect(actualPost).to.eql(expectedPost);
+        defer1.resolve();
+      });
+
+      var client2 = createClient();
+      var defer2 = Q.defer();
+      client2.on('post:create', function (actualPost) {
+        expect(actualPost).to.eql(expectedPost);
+        defer2.resolve();
+      });
+
+      client2.emit('post:create', expectedPost);
+      Q.all([defer1.promise, defer2.promise]).then(function () {
+        done();
+      });
     });
 
-    var client2 = createClient();
-    var defer2 = Q.defer();
-    client2.on('post:create', function (actualPost) {
-      expect(actualPost).to.eql(expectedPost);
-      defer2.resolve();
-    });
-
-    client2.emit('post:create', expectedPost);
-    Q.all([defer1.promise, defer2.promise]).then(function () {
-      done();
-    });
   });
 
 });
