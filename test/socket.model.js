@@ -26,6 +26,21 @@ function createClient() {
   return ioc('ws://127.0.0.1:' + port);
 }
 
+describe('model fields', function () {
+
+  it('should have name', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post).to.have.property('name');
+  });
+
+  it('should have collection as an empty array', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post).to.have.property('collection');
+    expect(Post.collection).to.be.an('array').and.to.have.length(0);
+  });
+
+});
+
 describe('connect', function () {
 
   it('should trigger connect event when a client connects', function (done) {
