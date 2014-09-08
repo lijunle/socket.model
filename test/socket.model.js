@@ -33,27 +33,31 @@ var expectedPost = {
   content: 'post content'
 };
 
+describe('model', function () {
+
+  it('should have a name property', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post).to.have.property('name');
+  });
+
+  it('should have collection property as an empty array', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post).to.have.property('collection');
+    expect(Post.collection).to.be.an('array').and.to.have.length(0);
+  });
+
+  it('should have a mode property', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post).to.have.property('mode');
+  });
+
+});
+
 describe('server', function () {
 
-  describe('model fields', function () {
-
-    it('should have a name', function () {
-      var Post = new SocketModel('post', sio);
-      expect(Post).to.have.property('name');
-    });
-
-    it('should have collection as an empty array', function () {
-      var Post = new SocketModel('post', sio);
-      expect(Post).to.have.property('collection');
-      expect(Post.collection).to.be.an('array').and.to.have.length(0);
-    });
-
-    it('should have mode', function () {
-      var Post = new SocketModel('post', sio);
-      expect(Post).to.have.property('mode');
-      expect(Post.mode).to.be('server');
-    });
-
+  it('should be with server mode', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post.mode).to.be('server');
   });
 
   describe('connect', function () {
@@ -148,6 +152,10 @@ describe('server', function () {
       });
     });
 
+  });
+
+  describe('communication', function () {
+
     it('should communicate between server and client via callback', function (done) {
       var Post = new SocketModel('post', sio);
       Post.on('create', function (req, res, actualPost, fn) {
@@ -209,9 +217,15 @@ describe('server', function () {
 
 describe('client', function () {
 
-  describe('connect', function () {
+  it('should be with client mode', function () {
+    var client = createClient();
+    var Post = new SocketModel('post', client);
+    expect(Post.mode).to.be('client');
+  });
 
-    it('should get something from connect event', function (done) {
+  describe('register event handler', function () {
+
+    it('should get data from connect event', function (done) {
       var expectedPosts = ['p1', 'p2', 'p3'];
 
       sio.on('connect', function (socket) {
@@ -240,6 +254,10 @@ describe('client', function () {
         });
       });
     });
+
+  });
+
+  describe('trigger', function () {
 
     it('should trigger server-side create event handler', function (done) {
       sio.on('connect', function (socket) {
@@ -273,6 +291,10 @@ describe('client', function () {
 
       Post.emit('create', expectedPost);
     });
+
+  });
+
+  describe('request', function () {
 
     it('should get request context when event triggered', function (done) {
       sio.on('connect', function (socket) {
