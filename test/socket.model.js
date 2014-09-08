@@ -31,7 +31,6 @@ describe('connect', function () {
   it('should trigger connect event when a client connects', function (done) {
     var Post = new SocketModel('post', sio);
     Post.on('connect', function () {
-      expect(true).to.be.ok();
       done();
     });
 
@@ -45,7 +44,6 @@ describe('connect', function () {
       // new socket model after client is connected
       var Post = new SocketModel('post', sio);
       Post.on('connect', function () {
-        expect(true).to.be.ok();
         done();
       });
     });
@@ -85,7 +83,6 @@ describe('create', function () {
   it('should trigger create handler when client emit event', function (done) {
     var Post = new SocketModel('post', sio);
     Post.on('create', function () {
-      expect(true).to.be.ok();
       done();
     });
 
@@ -98,7 +95,6 @@ describe('create', function () {
     client.on('connect', function () {
       var Post = new SocketModel('post', sio);
       Post.on('create', function () {
-        expect(true).to.be.ok();
         done();
       });
 
