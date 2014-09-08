@@ -26,6 +26,11 @@ function createClient() {
   return ioc('ws://127.0.0.1:' + port);
 }
 
+var expectedPost = {
+  id: 1234,
+  content: 'post content'
+};
+
 describe('server', function () {
 
   describe('model fields', function () {
@@ -125,11 +130,6 @@ describe('server', function () {
       });
     });
 
-    var expectedPost = {
-      id: 1234,
-      content: 'post content'
-    };
-
     it('should communicate between server and client via callback', function (done) {
       var Post = new SocketModel('post', sio);
       Post.on('create', function (actualPost, res) {
@@ -193,6 +193,54 @@ describe('client', function () {
         expect(actualPosts).to.be.eql(expectedPosts);
         done();
       });
+    });
+
+    it('should register event handler after connected', function (done) {
+      sio.on('connect', function (socket) {
+        socket.emit('post:create', true);
+      });
+
+      var client = createClient();
+      client.on('connect', function () {
+        var Post = new SocketModel('post', client);
+        Post.on('create', function (result) {
+          expect(result).to.be(true);
+          done();
+        });
+      });
+    });
+
+    it('should trigger server-side create event handler', function (done) {
+      sio.on('connect', function (socket) {
+        socket.on('post:create', function (actualPost) {
+          expect(actualPost).to.eql(expectedPost);
+          socket.emit('post:create', true);
+          done();
+        });
+      });
+
+      var client = createClient();
+      var Post = new SocketModel('post', client);
+      Post.emit('create', expectedPost);
+    });
+
+    it('should trigger event, and then get it back on listener', function (done) {
+      sio.on('connect', function (socket) {
+        socket.on('post:create', function (actualPost) {
+          expect(actualPost).to.eql(expectedPost);
+          socket.emit('post:create', true);
+        });
+      });
+
+      var client = createClient();
+      var Post = new SocketModel('post', client);
+
+      Post.on('create', function (result) {
+        expect(result).to.be(true);
+        done();
+      });
+
+      Post.emit('create', expectedPost);
     });
 
   });
