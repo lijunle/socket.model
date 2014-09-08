@@ -94,6 +94,8 @@ describe('server', function () {
       });
     });
 
+    it('should get request context when connect');
+
   });
 
   describe('create', function () {
@@ -179,6 +181,8 @@ describe('server', function () {
         done();
       });
     });
+
+    it('should get request context when event triggered');
 
   });
 
