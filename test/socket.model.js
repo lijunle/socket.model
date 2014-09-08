@@ -23,7 +23,9 @@ beforeEach(function (done) {
 });
 
 function createClient() {
-  return ioc('ws://127.0.0.1:' + port);
+  return ioc('ws://127.0.0.1:' + port, {
+    multiplex: false
+  });
 }
 
 var expectedPost = {
@@ -170,6 +172,8 @@ describe('server', function () {
         expect(actualPost).to.eql(expectedPost);
         defer2.resolve();
       });
+
+      expect(client1).to.not.equal(client2);
 
       client2.emit('post:create', expectedPost);
       Q.all([defer1.promise, defer2.promise]).then(function () {
