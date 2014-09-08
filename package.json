@@ -6,11 +6,13 @@
     "test": "./node_modules/.bin/mocha"
   },
   "dependencies": {
+    "lodash": "^2.4.1",
     "socket.io": "^1.1.0"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
     "mocha": "^1.21.4",
+    "q": "^1.0.1",
     "socket.io-client": "^1.1.0"
   }
 }
