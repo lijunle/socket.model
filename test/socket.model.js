@@ -55,15 +55,19 @@ describe('model', function () {
 
 describe('server', function () {
 
+  var Post;
+
+  beforeEach(function () {
+    Post = new SocketModel('post', sio);
+  });
+
   it('should be with server mode', function () {
-    var Post = new SocketModel('post', sio);
     expect(Post.mode).to.be('server');
   });
 
   describe('connect', function () {
 
     it('should trigger connect event when a client connects', function (done) {
-      var Post = new SocketModel('post', sio);
       Post.on('connect', function () {
         done();
       });
@@ -74,9 +78,7 @@ describe('server', function () {
     it('should trigger connect event on the connected client', function (done) {
       var client = createClient();
       client.on('connect', function () {
-
         // new socket model after client is connected
-        var Post = new SocketModel('post', sio);
         Post.on('connect', function () {
           done();
         });
@@ -86,7 +88,6 @@ describe('server', function () {
     it('should trigger client connect event when response', function (done) {
       var expectedPosts = ['p1', 'p2', 'p3'];
 
-      var Post = new SocketModel('post', sio);
       Post.on('connect', function (req, res) {
         res(expectedPosts);
       });
@@ -99,7 +100,6 @@ describe('server', function () {
     });
 
     it('should get request context when connected', function (done) {
-      var Post = new SocketModel('post', sio);
       Post.on('connect', function (req, res) {
         expect(req).to.be.an('object');
         expect(req.headers).to.be.an('object');
@@ -114,8 +114,6 @@ describe('server', function () {
   describe('create', function () {
 
     it('should not trigger any event handler when client connect', function (done) {
-      var Post = new SocketModel('post', sio);
-
       Post.on('create', function () {
         expect().fail('');
       });
@@ -131,7 +129,6 @@ describe('server', function () {
     });
 
     it('should trigger create handler when client emit event', function (done) {
-      var Post = new SocketModel('post', sio);
       Post.on('create', function () {
         done();
       });
@@ -143,7 +140,6 @@ describe('server', function () {
     it('should register event handler on connected sockets', function (done) {
       var client = createClient();
       client.on('connect', function () {
-        var Post = new SocketModel('post', sio);
         Post.on('create', function () {
           done();
         });
@@ -157,7 +153,6 @@ describe('server', function () {
   describe('communication', function () {
 
     it('should communicate between server and client via callback', function (done) {
-      var Post = new SocketModel('post', sio);
       Post.on('create', function (req, res, actualPost, fn) {
         expect(actualPost).to.eql(expectedPost);
         fn(true);
@@ -171,7 +166,6 @@ describe('server', function () {
     });
 
     it('should broadcast every socket that something is created', function (done) {
-      var Post = new SocketModel('post', sio);
       Post.on('create', function (req, res, actualPost) {
         expect(actualPost).to.eql(expectedPost);
         res(actualPost);
@@ -200,7 +194,6 @@ describe('server', function () {
     });
 
     it('should get request context when event triggered', function (done) {
-      var Post = new SocketModel('post', sio);
       Post.on('create', function (req, res) {
         expect(req).to.be.an('object');
         expect(req.headers).to.be.an('object');
@@ -217,9 +210,15 @@ describe('server', function () {
 
 describe('client', function () {
 
+  var client;
+  var Post;
+
+  beforeEach(function () {
+    client = createClient();
+    Post = new SocketModel('post', client);
+  });
+
   it('should be with client mode', function () {
-    var client = createClient();
-    var Post = new SocketModel('post', client);
     expect(Post.mode).to.be('client');
   });
 
@@ -232,8 +231,6 @@ describe('client', function () {
         socket.emit('post:connect', expectedPosts);
       });
 
-      var client = createClient();
-      var Post = new SocketModel('post', client);
       Post.on('connect', function (req, res, actualPosts) {
         expect(actualPosts).to.be.eql(expectedPosts);
         done();
@@ -245,7 +242,6 @@ describe('client', function () {
         socket.emit('post:create', true);
       });
 
-      var client = createClient();
       client.on('connect', function () {
         var Post = new SocketModel('post', client);
         Post.on('create', function (req, res, result) {
@@ -268,8 +264,6 @@ describe('client', function () {
         });
       });
 
-      var client = createClient();
-      var Post = new SocketModel('post', client);
       Post.emit('create', expectedPost);
     });
 
@@ -280,9 +274,6 @@ describe('client', function () {
           socket.emit('post:create', true);
         });
       });
-
-      var client = createClient();
-      var Post = new SocketModel('post', client);
 
       Post.on('create', function (req, res, result) {
         expect(result).to.be(true);
@@ -301,8 +292,6 @@ describe('client', function () {
         socket.emit('post:create', true);
       });
 
-      var client = createClient();
-      var Post = new SocketModel('post', client);
       Post.on('create', function (req, res) {
         expect(req).to.be.an('object');
         expect(req.uri).to.be.a('string');
