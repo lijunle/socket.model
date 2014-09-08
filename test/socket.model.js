@@ -267,6 +267,16 @@ describe('client', function () {
       Post.emit('create', expectedPost);
     });
 
+    it('should trigger event when socket.io server broadcast', function (done) {
+      Post.on('create', function () {
+        done();
+      });
+
+      client.on('connect', function () {
+        sio.emit('post:create');
+      });
+    });
+
     it('should trigger event, and then get it back on listener', function (done) {
       sio.on('connect', function (socket) {
         socket.on('post:create', function (actualPost) {
