@@ -35,20 +35,40 @@ var expectedPost = {
 
 describe('model', function () {
 
-  it('should have a name property', function () {
-    var Post = new SocketModel('post', sio);
-    expect(Post).to.have.property('name');
+  describe('constructor', function () {
+
+    it('should construct an object', function () {
+      var Post = new SocketModel(sio, 'post');
+      expect(Post).to.be.an('object');
+      expect(Post).to.be.a(SocketModel);
+    });
+
+    it('bind socket.io server on model constructor', function () {
+      var ShortcutModel = SocketModel.bind(sio);
+      var Post = new ShortcutModel('post');
+      expect(Post).to.be.a(SocketModel);
+    });
+
   });
 
-  it('should have collection property as an empty array', function () {
-    var Post = new SocketModel('post', sio);
-    expect(Post).to.have.property('collection');
-    expect(Post.collection).to.be.an('array').and.to.have.length(0);
-  });
+  describe('property', function () {
 
-  it('should have a mode property', function () {
-    var Post = new SocketModel('post', sio);
-    expect(Post).to.have.property('mode');
+    it('should have a name property', function () {
+      var Post = new SocketModel('post', sio);
+      expect(Post).to.have.property('name');
+    });
+
+    it('should have collection property as an empty array', function () {
+      var Post = new SocketModel('post', sio);
+      expect(Post).to.have.property('collection');
+      expect(Post.collection).to.be.an('array').and.to.have.length(0);
+    });
+
+    it('should have a mode property', function () {
+      var Post = new SocketModel('post', sio);
+      expect(Post).to.have.property('mode');
+    });
+
   });
 
 });
@@ -58,7 +78,7 @@ describe('server', function () {
   var Post;
 
   beforeEach(function () {
-    Post = new SocketModel('post', sio);
+    Post = new SocketModel(sio, 'post');
   });
 
   it('should be with server mode', function () {
@@ -215,7 +235,7 @@ describe('client', function () {
 
   beforeEach(function () {
     client = createClient();
-    Post = new SocketModel('post', client);
+    Post = new SocketModel(client, 'post');
   });
 
   it('should be with client mode', function () {
@@ -243,7 +263,7 @@ describe('client', function () {
       });
 
       client.on('connect', function () {
-        var Post = new SocketModel('post', client);
+        var Post = new SocketModel(client, 'post');
         Post.on('create', function (req, res, result) {
           expect(result).to.be(true);
           done();
