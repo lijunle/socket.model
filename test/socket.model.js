@@ -171,3 +171,26 @@ describe('create', function () {
   });
 
 });
+
+describe('client', function () {
+
+  describe('connect', function () {
+
+    it('should get something from connect event', function (done) {
+      var expectedPosts = ['p1', 'p2', 'p3'];
+
+      sio.on('connect', function (socket) {
+        socket.emit('post:connect', expectedPosts);
+      });
+
+      var client = createClient();
+      var Post = new SocketModel('post', client);
+      Post.on('connect', function (actualPosts) {
+        expect(actualPosts).to.be.eql(expectedPosts);
+        done();
+      });
+    });
+
+  });
+
+});
