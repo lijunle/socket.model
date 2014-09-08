@@ -139,24 +139,23 @@ describe('server', function () {
 
     it('should communicate between server and client via callback', function (done) {
       var Post = new SocketModel('post', sio);
-      Post.on('create', function (actualPost, res) {
+      Post.on('create', function (res, actualPost, fn) {
         expect(actualPost).to.eql(expectedPost);
-        res(true);
+        fn(true);
       });
 
-      var res = function (result) {
+      var client = createClient();
+      client.emit('post:create', expectedPost, function (result) {
         expect(result).to.be(true);
         done();
-      };
-
-      var client = createClient();
-      client.emit('post:create', expectedPost, res);
+      });
     });
 
     it('should broadcast every socket that something is created', function (done) {
       var Post = new SocketModel('post', sio);
-      Post.on('create', function (actualPost) {
+      Post.on('create', function (res, actualPost) {
         expect(actualPost).to.eql(expectedPost);
+        res(actualPost);
       });
 
       var client1 = createClient();
@@ -198,7 +197,7 @@ describe('client', function () {
 
       var client = createClient();
       var Post = new SocketModel('post', client);
-      Post.on('connect', function (actualPosts) {
+      Post.on('connect', function (res, actualPosts) {
         expect(actualPosts).to.be.eql(expectedPosts);
         done();
       });
@@ -212,7 +211,7 @@ describe('client', function () {
       var client = createClient();
       client.on('connect', function () {
         var Post = new SocketModel('post', client);
-        Post.on('create', function (result) {
+        Post.on('create', function (res, result) {
           expect(result).to.be(true);
           done();
         });
@@ -244,7 +243,7 @@ describe('client', function () {
       var client = createClient();
       var Post = new SocketModel('post', client);
 
-      Post.on('create', function (result) {
+      Post.on('create', function (res, result) {
         expect(result).to.be(true);
         done();
       });
