@@ -28,7 +28,7 @@ function createClient() {
 
 describe('model fields', function () {
 
-  it('should have name', function () {
+  it('should have a name', function () {
     var Post = new SocketModel('post', sio);
     expect(Post).to.have.property('name');
   });
@@ -37,6 +37,12 @@ describe('model fields', function () {
     var Post = new SocketModel('post', sio);
     expect(Post).to.have.property('collection');
     expect(Post.collection).to.be.an('array').and.to.have.length(0);
+  });
+
+  it('should have mode', function () {
+    var Post = new SocketModel('post', sio);
+    expect(Post).to.have.property('mode');
+    expect(Post.mode).to.be('server');
   });
 
 });
