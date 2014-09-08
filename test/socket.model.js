@@ -98,13 +98,18 @@ describe('server', function () {
 
     it('should not trigger any event handler when client connect', function (done) {
       var Post = new SocketModel('post', sio);
+
       Post.on('create', function () {
         expect().fail('');
       });
 
+      Post.on('edit', function () {
+        done();
+      });
+
       var client = createClient();
       client.on('connect', function () {
-        setTimeout(done, 500);
+        client.emit('post:edit');
       });
     });
 
