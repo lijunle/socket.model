@@ -35,10 +35,15 @@ var expectedPost = {
 
 describe('model', function () {
 
+  var Post;
+
+  beforeEach(function () {
+    Post = new SocketModel(sio, 'post');
+  });
+
   describe('constructor', function () {
 
     it('should construct an object', function () {
-      var Post = new SocketModel(sio, 'post');
       expect(Post).to.be.an('object');
       expect(Post).to.be.a(SocketModel);
     });
@@ -54,19 +59,30 @@ describe('model', function () {
   describe('property', function () {
 
     it('should have a name property', function () {
-      var Post = new SocketModel('post', sio);
       expect(Post).to.have.property('name');
     });
 
     it('should have collection property as an empty array', function () {
-      var Post = new SocketModel('post', sio);
       expect(Post).to.have.property('collection');
       expect(Post.collection).to.be.an('array').and.to.have.length(0);
     });
 
     it('should have a mode property', function () {
-      var Post = new SocketModel('post', sio);
       expect(Post).to.have.property('mode');
+    });
+
+  });
+
+  describe('method', function () {
+
+    it('should return `this` in `on` method', function () {
+      var returned = Post.on('event', function () {});
+      expect(returned).to.equal(Post);
+    });
+
+    it('should return `this` in `emit` method', function () {
+      var returned = Post.emit('event');
+      expect(returned).to.equal(Post);
     });
 
   });
