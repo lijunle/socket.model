@@ -1,0 +1,8 @@
+Socket.Model
+===
+
+Event driven model, communicate between server and client using socket.io.
+
+License
+---
+MIT
