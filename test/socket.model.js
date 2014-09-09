@@ -411,9 +411,13 @@ describe('meta-class', function () {
 
     function setUpAndCreatePost(method, done) {
       sio.on('connect', function (socket) {
-        socket.on('post:' + method, function (actualPost) {
+        socket.on('post:' + method, function (actualPost, fn) {
           expect(actualPost).to.eql(expectedPost);
           done();
+
+          if (typeof fn === 'function') {
+            fn(actualPost);
+          }
         });
       });
 
@@ -448,6 +452,15 @@ describe('meta-class', function () {
       _.extend(post, expectedPost);
 
       post.save();
+    });
+
+    it('should invoke callback after server-side response', function (done) {
+      var post = setUpAndCreatePost('save', _.noop);
+
+      post.save(expectedPost, function (actualPost) {
+        expect(actualPost).to.be.eql(expectedPost);
+        done();
+      });
     });
 
   });
