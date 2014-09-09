@@ -336,7 +336,46 @@ describe('client', function () {
       Post.emit('create', expectedPost);
     });
 
-    it('should queue the firing event till connected, then re-fire them');
+    it('should queue the firing event till connected, then re-fire them', function (done) {
+      var createDefer = Q.defer();
+      var editDefer = Q.defer();
+      var deleteDefer = Q.defer();
+
+      sio.on('connect', function (socket) {
+        socket
+          .on('post:create', function (data) {
+            expect(data).to.be(1);
+            createDefer.resolve();
+          })
+          .on('post:edit', function (data) {
+            expect(data).to.be(2);
+            editDefer.resolve();
+          })
+          .on('post:delete', function (data) {
+            expect(data).to.be(3);
+            deleteDefer.resolve();
+          });
+      });
+
+      Post.emit('create', 1);
+      Post.emit('edit', 2);
+      Post.emit('delete', 3);
+
+      // ensure the model emit the events before client connected
+      expect(client.connected).to.be(false);
+
+      // when client connected, no serve-side event is triggered
+      client.on('connect', function () {
+        expect(createDefer.promise.isFulfilled()).to.be(false);
+        expect(editDefer.promise.isFulfilled()).to.be(false);
+        expect(deleteDefer.promise.isFulfilled()).to.be(false);
+      });
+
+      Q.all([createDefer.promise, editDefer.promise, deleteDefer.promise]).then(function () {
+        expect(client.connected).to.be(true);
+        done();
+      });
+    });
 
   });
 
