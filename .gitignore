@@ -1,5 +1,6 @@
 # node related files
 node_modules/
+npm-debug.log
 
 # istanbul code coverage
 coverage/
