@@ -1,2 +1,5 @@
 # node related files
 node_modules/
+
+# istanbul code coverage
+coverage/
