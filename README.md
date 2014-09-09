@@ -1,7 +1,7 @@
 Socket.Model
 ===
 
-[![Build Status](https://travis-ci.org/lijunle/socket.model.svg)](https://travis-ci.org/lijunle/socket.model.svg)
+[![Build Status](https://travis-ci.org/lijunle/socket.model.svg)](https://travis-ci.org/lijunle/socket.model)
 
 Event driven model, communicate between server and client using socket.io.
 
