@@ -8,6 +8,7 @@ var ioc = require('socket.io-client');
 var expect = require('expect.js');
 var SocketModel = require('../lib/socket.model');
 var Q = require('q');
+var _ = require('lodash');
 
 var sio;
 var port;
@@ -335,6 +336,8 @@ describe('client', function () {
       Post.emit('create', expectedPost);
     });
 
+    it('should queue the firing event till connected, then re-fire them');
+
   });
 
   describe('request', function () {
@@ -349,6 +352,102 @@ describe('client', function () {
         expect(req.uri).to.be.a('string');
         done();
       });
+    });
+
+  });
+
+});
+
+describe('meta-class', function () {
+
+  it('should be a constructor', function () {
+    var client = createClient();
+    var Post = new SocketModel(client, 'post').class;
+    var post = new Post();
+
+    expect(post).to.be.an('object');
+    expect(post).to.be.a(Post);
+  });
+
+  describe('field', function () {
+
+    it('should initialize from the constructor', function () {
+      var client = createClient();
+      var Post = new SocketModel(client, 'post').class;
+      var post = new Post({
+        property1: 123,
+        property2: 'abc',
+        property3: true
+      });
+
+      expect(post).to.have.property('property1', 123);
+      expect(post).to.have.property('property2', 'abc');
+      expect(post).to.have.property('property3', true);
+    });
+
+    it('should access the fields from the methods in constructor', function () {
+      var client = createClient();
+      var Post = new SocketModel(client, 'post').class;
+      var post = new Post({
+        property: 100,
+        add: function () {
+          this.property++;
+          return this.property;
+        }
+      });
+
+      expect(post).to.have.property('add');
+      expect(post.add).to.be.a('function');
+
+      var result = post.add();
+
+      expect(result).to.be(101);
+      expect(post.property).to.be(101);
+    });
+
+  });
+
+  describe('method', function () {
+
+    function setUpAndCreatePost(method, done) {
+      sio.on('connect', function (socket) {
+        socket.on('post:' + method, function (actualPost) {
+          expect(actualPost).to.eql(expectedPost);
+          done();
+        });
+      });
+
+      var client = createClient();
+      var Post = new SocketModel(client, 'post').class;
+      var post = new Post();
+
+      return post;
+    }
+
+    it('should have save method', function (done) {
+      var post = setUpAndCreatePost('save', done);
+
+      expect(post).to.have.property('save');
+      expect(post.save).to.be.a('function');
+
+      post.save(expectedPost);
+    });
+
+    it('should have delete method', function (done) {
+      var post = setUpAndCreatePost('delete', done);
+
+      expect(post).to.have.property('delete');
+      expect(post.delete).to.be.a('function');
+
+      post.delete(expectedPost);
+    });
+
+    it('should emit object fields when invoke without parameters', function (done) {
+      var post = setUpAndCreatePost('save', done);
+
+      _.extend(post, expectedPost);
+
+      post.save();
     });
 
   });
