@@ -2,6 +2,7 @@
   "name": "socket.model",
   "description": "Event driven model, communicate between server and client using socket.io.",
   "version": "0.0.1",
+  "author": "Junle Li <lijunle@gmail.com>",
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha",
     "test-on-travis": "istanbul cover ./node_modules/mocha/bin/_mocha && istanbul-coveralls"
@@ -20,5 +21,6 @@
     "q": "^1.0.1",
     "socket.io": "^1.1.0",
     "socket.io-client": "^1.1.0"
-  }
+  },
+  "license": "MIT"
 }
