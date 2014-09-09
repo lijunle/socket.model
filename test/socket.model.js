@@ -48,9 +48,15 @@ describe('model', function () {
       expect(Post).to.be.a(SocketModel);
     });
 
-    it('bind socket.io server on model constructor', function () {
+    it('should bind socket.io server on model constructor', function () {
       var ShortcutModel = SocketModel.bind(sio);
       var Post = new ShortcutModel('post');
+      expect(Post).to.be.a(SocketModel);
+    });
+
+    it('should construct instance without `new` keyword', function () {
+      var model = SocketModel;
+      var Post = model(sio, 'post');
       expect(Post).to.be.a(SocketModel);
     });
 
