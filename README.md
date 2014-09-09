@@ -2,6 +2,9 @@ Socket.Model
 ===
 
 [![Build Status](https://travis-ci.org/lijunle/socket.model.svg)](https://travis-ci.org/lijunle/socket.model)
+[![Coverage Status](https://img.shields.io/coveralls/lijunle/socket.model.svg)](https://coveralls.io/r/lijunle/socket.model)
+[![Dependency Status](https://david-dm.org/lijunle/socket.model.svg)](https://david-dm.org/lijunle/socket.model)
+[![devDependency Status](https://david-dm.org/lijunle/socket.model/dev-status.svg)](https://david-dm.org/lijunle/socket.model#info=devDependencies)
 
 Event driven model, communicate between server and client using socket.io.
 
